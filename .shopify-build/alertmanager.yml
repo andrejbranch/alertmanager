@@ -1,0 +1,16 @@
+containers:
+  production:
+    environment: production
+    dockerfile:
+      path: DockerfileShopify
+  development:
+    environment: dev
+    dockerfile:
+      path: DockerfileShopify
+
+steps:
+- build: development
+  branches: "!shopify-build"
+- build: production
+  branches: "shopify-build"
+
