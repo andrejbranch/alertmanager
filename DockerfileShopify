@@ -1,0 +1,25 @@
+FROM golang:1.18 as builder
+
+WORKDIR /go/src/github.com/Shopify/alertmanager
+
+COPY . /go/src/github.com/Shopify/alertmanager
+
+RUN GO111MODULE=on CGO_ENABLED=0 GOOS=linux go build -o=/bin/alertmanager /go/src/github.com/Shopify/alertmanager/cmd/alertmanager/main.go
+RUN GO111MODULE=on CGO_ENABLED=0 GOOS=linux go build -o=/bin/amtool /go/src/github.com/Shopify/alertmanager/cmd/amtool/main.go
+
+FROM quay.io/prometheus/busybox-linux-amd64:latest
+LABEL maintainer="The Prometheus Authors <prometheus-developers@googlegroups.com>"
+COPY --from=0 /go/src/github.com/Shopify/alertmanager/examples/ha/alertmanager.yml /etc/alertmanager/alertmanager.yml
+COPY --from=0 /bin/alertmanager /bin
+COPY --from=0 /bin/amtool /bin
+
+RUN mkdir -p /alertmanager && \
+    chown -R nobody:nobody etc/alertmanager /alertmanager
+
+USER       nobody
+EXPOSE     9093
+VOLUME     [ "/alertmanager" ]
+WORKDIR    /alertmanager
+ENTRYPOINT [ "/bin/alertmanager" ]
+CMD        [ "--config.file=/etc/alertmanager/alertmanager.yml", \
+             "--storage.path=/alertmanager" ]
