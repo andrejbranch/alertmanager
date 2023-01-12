@@ -481,11 +481,11 @@ func (ag *aggrGroup) insert(alert *types.Alert) {
 
 	// Immediately trigger a flush if the wait duration for this
 	// alert is already over.
-	ag.mtx.Lock()
-	defer ag.mtx.Unlock()
-	if !ag.hasFlushed && alert.StartsAt.Add(ag.opts.GroupWait).Before(time.Now()) {
-		ag.next.Reset(0)
-	}
+	//ag.mtx.Lock()
+	//defer ag.mtx.Unlock()
+	//if !ag.hasFlushed && alert.StartsAt.Add(ag.opts.GroupWait).Before(time.Now()) {
+	//	ag.next.Reset(0)
+	//}
 }
 
 func (ag *aggrGroup) empty() bool {
