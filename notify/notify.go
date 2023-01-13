@@ -597,7 +597,7 @@ func (n *DedupStage) needsUpdate(entry *nflogpb.Entry, firing, resolved map[uint
 		return len(entry.FiringAlerts) > 0
 	}
 
-	if n.rs.SendResolved() && !groupIntervalMuted {
+	if n.rs.SendResolved() && !entry.IsResolvedSubset(resolved) && !groupIntervalMuted {
 		return true
 	}
 
