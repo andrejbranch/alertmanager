@@ -586,10 +586,12 @@ func (n *DedupStage) needsUpdate(entry *nflogpb.Entry, firing, resolved map[uint
 		return true
 	}
 
+	recentEntry := entry.Timestamp.After(time.Now().Add(-30 * time.Second))
+
 	// Notify about all alerts being resolved.
 	// This is done irrespective of the send_resolved flag to make sure that
 	// the firing alerts are cleared from the notification log.
-	if len(firing) == 0 {
+	if len(firing) == 0 && !recentEntry {
 		// If the current alert group and last notification contain no firing
 		// alert, it means that some alerts have been fired and resolved during the
 		// last interval. In this case, there is no need to notify the receiver
